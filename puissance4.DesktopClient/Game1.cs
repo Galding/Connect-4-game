@@ -97,6 +97,7 @@ namespace puissance4.DesktopClient
                         if (x == 0 && y == 0)
                         {
                             _spriteBatch.Draw(red.Texture, pos, Color.White);
+                            map[x, y] = 2;
                         }
                         else
                             _spriteBatch.Draw(cadre.Texture, pos, Color.White);
