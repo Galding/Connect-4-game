@@ -83,7 +83,11 @@ namespace puissance4.DesktopClient
             if (IsKeyPressed(Keys.Down))
             {
                 bool success = this.dropCoin(this.currentColumn, this.currentPlayer);
-                if (success) this.switchPlayer();
+                if (success)
+                {
+                    int winner = this.hasWin();
+                    if (winner == 0) this.switchPlayer();
+                }
             }
             this.previousKeyState = this.currentKeyState;
 
@@ -93,11 +97,9 @@ namespace puissance4.DesktopClient
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
             GraphicsDevice.Clear(Color.Black);
-
             _spriteBatch.Begin();
-            // TODO: Add your drawing code here
+
             int offsetX = 100;
             int offsetY = 162;
             Vector2 arrow_pos = new Vector2(offsetY + this.currentColumn * 100, offsetX - 100);
@@ -127,8 +129,8 @@ namespace puissance4.DesktopClient
                 }
 
             }
-            _spriteBatch.End();
 
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
 
@@ -139,14 +141,87 @@ namespace puissance4.DesktopClient
 
         protected bool dropCoin(int column, int player)
         {
-            if (this.map[0, column] != 0) // column already full
+            if (this.map[0, column] != 0) // if column already full
                 return false;
 
             int x = VX - 1;
             while (this.map[x, column] != 0) // found first empty from the bottom
                 x--;
+
             this.map[x, column] = Convert.ToByte(player);
             return true;
+        }
+
+        protected int hasWin()
+        {
+            var winner = 0;
+            for (int i = 0; i < VY; i++)
+            {
+                winner = hasFourInArray(getColumn(i));
+                if (winner != 0)
+                {
+                    return winner;
+                }
+            }
+            for (int i = 0; i < VY; i++)
+            {
+                winner = hasFourInArray(getRow(i));
+                if (winner != 0)
+                {
+                    return winner;
+                }
+            }
+
+            return 0;
+        }
+
+        protected int hasFourInArray(byte[] array)
+        {
+            for (int p = 1; p < 2; p++)
+            {
+                byte connected = 0;
+                var previous = 0;
+                foreach (byte current in array)
+                {
+                    if (current != p)
+                    {
+                        connected = 0;
+                        continue;
+                    }
+                    if (current != previous)
+                    {
+                        connected = 1;
+                        previous = current;
+                        continue;
+                    }
+                    connected++;
+                    if (connected == 4)
+                    {
+                        return p;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        protected byte[] getColumn(int row)
+        {
+            var result = new byte[VY - 1];
+            for (int i = 0; i < VY; i++)
+            {
+                result[i] = map[i, row];
+            }
+            return result;
+        }
+
+        protected byte[] getRow(int column)
+        {
+            var result = new byte[VX - 1];
+            for (int i = 0; i < VX; i++)
+            {
+                result[i] = map[column, i];
+            }
+            return result;
         }
     }
 }
