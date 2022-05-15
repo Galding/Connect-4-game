@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/white.png</SourceFile>
-  <SourceTime>2022-05-15T14:47:43.563657+02:00</SourceTime>
-  <DestFile>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/bin/DesktopGL/Content/white.xnb</DestFile>
-  <DestTime>2022-05-15T14:47:48.5138677+02:00</DestTime>
+  <SourceFile>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/arrow.png</SourceFile>
+  <SourceTime>2022-05-15T15:17:53.3722156+02:00</SourceTime>
+  <DestFile>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/bin/DesktopGL/Content/arrow.xnb</DestFile>
+  <DestTime>2022-05-15T15:18:00.9465067+02:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T18:17:54+02:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
