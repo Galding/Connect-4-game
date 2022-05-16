@@ -25,6 +25,13 @@
 /processorParam:TextureFormat=Color
 /build:arrow.png
 
+#begin ImpactFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:ImpactFont.spritefont
+
 #begin red.png
 /importer:TextureImporter
 /processor:TextureProcessor

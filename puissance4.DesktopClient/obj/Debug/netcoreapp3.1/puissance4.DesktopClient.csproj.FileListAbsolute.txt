@@ -26,3 +26,4 @@ C:\Users\Epulapp\source\repos\puissance4\puissance4.DesktopClient\bin\Debug\netc
 C:\Users\Epulapp\source\repos\puissance4\puissance4.DesktopClient\bin\Debug\netcoreapp3.1\Content\white.xnb
 C:\Users\Epulapp\source\repos\puissance4\puissance4.DesktopClient\bin\Debug\netcoreapp3.1\Content\yellow.xnb
 C:\Users\Epulapp\source\repos\puissance4\puissance4.DesktopClient\bin\Debug\netcoreapp3.1\Content\arrow.xnb
+C:\Users\Epulapp\source\repos\puissance4\puissance4.DesktopClient\bin\Debug\netcoreapp3.1\Content\ImpactFont.xnb

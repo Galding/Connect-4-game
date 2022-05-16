@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Linq;
 
 namespace puissance4.DesktopClient
 {
@@ -13,11 +14,14 @@ namespace puissance4.DesktopClient
         private Puissance4Object red;
         private Puissance4Object yellow;
         private Puissance4Object arrow;
+        private Texture2D endBackGroudTexture;
         const int VX = 6;
         const int VY = 7;
         private byte[,] map;
         private int currentPlayer = 1;
         private int currentColumn = VY / 2;
+        private bool isPlaying = true;
+        private SpriteFont font;
 
         public Game1()
         {
@@ -57,6 +61,12 @@ namespace puissance4.DesktopClient
            Vector2(0f, 0f), new Vector2(100f, 100f));
             arrow = new Puissance4Object(Content.Load<Texture2D>("arrow"), new Vector2(0f,
            0f), new Vector2(100f, 100f));
+            font = Content.Load<SpriteFont>("ImpactFont");
+            endBackGroudTexture = new Texture2D(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            Color[] color = new Color[_graphics.PreferredBackBufferWidth * _graphics.PreferredBackBufferHeight];
+            for (int i = 0; i < color.Length; i++) color[i] = Color.Black;
+            endBackGroudTexture.SetData(color);
+
 
         }
 
@@ -72,25 +82,38 @@ namespace puissance4.DesktopClient
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             this.currentKeyState = Keyboard.GetState();
-            if (IsKeyPressed(Keys.Right) && this.currentColumn < VX)
+            if (isPlaying)
             {
-                this.currentColumn++;
-            }
-            if (IsKeyPressed(Keys.Left) && this.currentColumn > 0)
-            {
-                this.currentColumn--;
-            }
-            if (IsKeyPressed(Keys.Down))
-            {
-                bool success = this.dropCoin(this.currentColumn, this.currentPlayer);
-                if (success)
+                if (IsKeyPressed(Keys.Right) && this.currentColumn < VX)
                 {
-                    int winner = this.hasWin();
-                    if (winner == 0) this.switchPlayer();
+                    this.currentColumn++;
+                }
+                if (IsKeyPressed(Keys.Left) && this.currentColumn > 0)
+                {
+                    this.currentColumn--;
+                }
+                if (IsKeyPressed(Keys.Down))
+                {
+                    bool success = this.dropCoin(this.currentColumn, this.currentPlayer);
+                    if (success)
+                    {
+                        int winner = this.hasWin();
+                        if (winner == 0) this.switchPlayer();
+                        else
+                        {
+                            isPlaying = false;
+                        }
+                    }
+                }
+                this.previousKeyState = this.currentKeyState;
+            }
+            else
+            {
+                if (IsKeyPressed(Keys.R))
+                {
+                    resetGame();
                 }
             }
-            this.previousKeyState = this.currentKeyState;
-
             base.Update(gameTime);
         }
 
@@ -131,6 +154,19 @@ namespace puissance4.DesktopClient
             }
 
             _spriteBatch.End();
+            if (!isPlaying)
+            {
+
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(endBackGroudTexture, new Vector2(0, 0), Color.White * 0.5f);
+                var winText = "You WIN !";
+                Vector2 textMiddlePoint = font.MeasureString(winText) / 2;
+                Vector2 winTextPosition = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
+                _spriteBatch.DrawString(font, winText, winTextPosition, currentPlayer == 1 ? Color.Yellow : Color.Red, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
+                Vector2 restartPos = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height - 75);
+                _spriteBatch.DrawString(font, "Press R to restart", restartPos, Color.White);
+                _spriteBatch.End();
+            }
             base.Draw(gameTime);
         }
 
@@ -155,7 +191,7 @@ namespace puissance4.DesktopClient
         protected int hasWin()
         {
             var winner = 0;
-            for (int i = 0; i < VY; i++)
+            for (int i = 0; i < VX; i++)
             {
                 winner = hasFourInArray(getColumn(i));
                 if (winner != 0)
@@ -177,7 +213,7 @@ namespace puissance4.DesktopClient
 
         protected int hasFourInArray(byte[] array)
         {
-            for (int p = 1; p < 2; p++)
+            for (int p = 1; p <= 2; p++)
             {
                 byte connected = 0;
                 var previous = 0;
@@ -209,7 +245,7 @@ namespace puissance4.DesktopClient
             var result = new byte[VY - 1];
             for (int i = 0; i < VY; i++)
             {
-                result[i] = map[i, row];
+                result = result.Append(map[row, i]).ToArray();
             }
             return result;
         }
@@ -219,9 +255,21 @@ namespace puissance4.DesktopClient
             var result = new byte[VX - 1];
             for (int i = 0; i < VX; i++)
             {
-                result[i] = map[column, i];
+                result = result.Append(map[i, column]).ToArray();
             }
             return result;
+        }
+
+        protected void resetGame()
+        {
+            isPlaying = true;
+            for (int i = 0; i < VX; i++)
+            {
+                for (int j = 0; j < VY; j++)
+                {
+                    map[i, j] = 0;
+                }
+            }
         }
     }
 }
