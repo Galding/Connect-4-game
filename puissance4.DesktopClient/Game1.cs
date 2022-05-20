@@ -20,6 +20,7 @@ namespace puissance4.DesktopClient
         private byte[,] map;
         private int currentPlayer = 1;
         private int currentColumn = VY / 2;
+        private bool is_draw = false;
         private bool isPlaying = true;
         private SpriteFont font;
 
@@ -97,10 +98,11 @@ namespace puissance4.DesktopClient
                     bool success = this.dropCoin(this.currentColumn, this.currentPlayer);
                     if (success)
                     {
-                        int winner = this.hasWin();
+                        int winner = this.getWinner();
                         if (winner == 0) this.switchPlayer();
                         else
                         {
+                            is_draw = winner == -1;
                             isPlaying = false;
                         }
                     }
@@ -156,13 +158,14 @@ namespace puissance4.DesktopClient
             _spriteBatch.End();
             if (!isPlaying)
             {
-
                 _spriteBatch.Begin();
                 _spriteBatch.Draw(endBackGroudTexture, new Vector2(0, 0), Color.White * 0.5f);
-                var winText = "You WIN !";
+                var winText = is_draw ? "Draw game!" : "You WIN!";
                 Vector2 textMiddlePoint = font.MeasureString(winText) / 2;
                 Vector2 winTextPosition = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
-                _spriteBatch.DrawString(font, winText, winTextPosition, currentPlayer == 1 ? Color.Yellow : Color.Red, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
+                Color textColor = Color.White;
+                if (!is_draw) textColor = currentPlayer == 1 ? Color.Yellow : Color.Red;
+                _spriteBatch.DrawString(font, winText, winTextPosition, textColor, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
                 Vector2 restartPos = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height - 75);
                 _spriteBatch.DrawString(font, "Press R to restart", restartPos, Color.White);
                 _spriteBatch.End();
@@ -188,30 +191,45 @@ namespace puissance4.DesktopClient
             return true;
         }
 
-        protected int hasWin()
+        protected int getWinner()
         {
             var winner = 0;
             for (int i = 0; i < VX; i++)
             {
-                winner = hasFourInArray(getColumn(i));
-                if (winner != 0)
-                {
-                    return winner;
-                }
+                winner = getPlayerThatHasFourInArray(getColumn(i));
+                if (winner != 0) return winner;
             }
             for (int i = 0; i < VY; i++)
             {
-                winner = hasFourInArray(getRow(i));
-                if (winner != 0)
-                {
-                    return winner;
-                }
+                winner = getPlayerThatHasFourInArray(getRow(i));
+                if (winner != 0) return winner;
             }
+
+            byte[][] diagonals = getDiagonals();
+            foreach (var diagonal in diagonals)
+            {
+                winner = getPlayerThatHasFourInArray(diagonal);
+                if (winner != 0) return winner;
+            }
+
+            if (isMapFull()) return -1;
 
             return 0;
         }
 
-        protected int hasFourInArray(byte[] array)
+        private bool isMapFull()
+        {
+            for (int y = 0; y < VY; y++)
+            {
+                for (int x = 0; x < VX; x++)
+                {
+                    if (map[x, y] == 0) return false;
+                }
+            }
+            return true;
+        }
+
+        protected int getPlayerThatHasFourInArray(byte[] array)
         {
             for (int p = 1; p <= 2; p++)
             {
@@ -260,6 +278,32 @@ namespace puissance4.DesktopClient
             return result;
         }
 
+        protected byte[][] getDiagonals()
+        {
+            byte[][] diagonals = new byte[][] { };
+            int x;
+            for (int way = 0; way < 2; way++)
+            {
+                for (int offset = -VX + 1; offset < VX; offset++)
+                {
+                    byte[] diagonal = new byte[] { };
+                    for (int y = 0; y < VY; y++)
+                    {
+                        x = way == 1 ? y + offset : VX - 1 - y + offset;
+                        if (x < 0 || x > VX - 1 || y < 0 || y > VY) continue;
+                        Array.Resize(ref diagonal, diagonal.Length + 1);
+                        diagonal[diagonal.Length - 1] = map[x, y];
+                    }
+                    if (diagonal.Length >= 4)
+                    {
+                        Array.Resize(ref diagonals, diagonals.Length + 1);
+                        diagonals[diagonals.Length - 1] = diagonal;
+                    }
+                }
+            }
+            return diagonals;
+        }
+
         protected void resetGame()
         {
             isPlaying = true;
@@ -270,6 +314,9 @@ namespace puissance4.DesktopClient
                     map[i, j] = 0;
                 }
             }
+            switchPlayer();
+            is_draw = false;
+            currentColumn = VY / 2;
         }
     }
 }

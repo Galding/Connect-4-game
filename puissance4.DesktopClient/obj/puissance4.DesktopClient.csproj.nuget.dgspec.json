@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Epulapp\\source\\repos\\puissance4\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj": {}
+    "C:\\Users\\Epulapp\\Source\\Repos\\Connect-4-game\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Epulapp\\source\\repos\\puissance4\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj": {
+    "C:\\Users\\Epulapp\\Source\\Repos\\Connect-4-game\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Epulapp\\source\\repos\\puissance4\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj",
+        "projectUniqueName": "C:\\Users\\Epulapp\\Source\\Repos\\Connect-4-game\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj",
         "projectName": "puissance4.DesktopClient",
-        "projectPath": "C:\\Users\\Epulapp\\source\\repos\\puissance4\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj",
+        "projectPath": "C:\\Users\\Epulapp\\Source\\Repos\\Connect-4-game\\puissance4.DesktopClient\\puissance4.DesktopClient.csproj",
         "packagesPath": "C:\\Users\\Epulapp\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Epulapp\\source\\repos\\puissance4\\puissance4.DesktopClient\\obj\\",
+        "outputPath": "C:\\Users\\Epulapp\\Source\\Repos\\Connect-4-game\\puissance4.DesktopClient\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Epulapp\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -59,12 +59,30 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.1.10, 3.1.10]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[3.1.22, 3.1.22]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[3.1.0, 3.1.0]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[3.1.0, 3.1.0]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }
