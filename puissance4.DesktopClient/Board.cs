@@ -19,7 +19,12 @@ namespace puissance4.DesktopClient
              };
         }
 
-        public int getValue(int x, int y)
+        public Board(byte[,] map)
+        {
+            this.map = map;
+        }
+
+        public int getValueAt(int x, int y)
         {
             return map[x, y];
         }
@@ -28,6 +33,11 @@ namespace puissance4.DesktopClient
         public void setValueAt(int x, int y, byte value)
         {
             map[x, y] = value;
+        }
+
+        public Board copy()
+        {
+            return new Board(map);
         }
 
         public bool isMapFull()

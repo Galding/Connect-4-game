@@ -27,6 +27,9 @@ namespace puissance4.DesktopClient
         private State state = State.Menu;
         private Gamemode gamemode = Gamemode.Player;
         private Color textSwitchingColor = Color.Red;
+        private int textSwitchingTimer = 0;
+
+        private AI ai;
 
         public Game1()
         {
@@ -34,6 +37,7 @@ namespace puissance4.DesktopClient
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             board = new Board();
+            ai = new AI();
         }
 
         protected override void Initialize()
@@ -74,8 +78,6 @@ namespace puissance4.DesktopClient
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
             currentKeyState = Keyboard.GetState();
             switch (state)
             {
@@ -101,10 +103,25 @@ namespace puissance4.DesktopClient
 
             if (IsKeyPressed(Keys.Enter))
                 state = State.Playing;
+
+            if (IsKeyPressed(Keys.Escape))
+                Exit();
         }
 
         protected void UpdateGame()
         {
+            if (gamemode == Gamemode.AI && currentPlayer == 2)
+            {
+                currentColumn = ai.Play();
+                Play();
+            }
+
+            if (IsKeyPressed(Keys.Escape))
+            {
+                resetGame();
+                state = State.Menu;
+            }
+
             if (IsKeyPressed(Keys.Right) && currentColumn < VX)
                 currentColumn++;
 
@@ -113,16 +130,21 @@ namespace puissance4.DesktopClient
 
             if (IsKeyPressed(Keys.Down))
             {
-                bool success = board.dropCoin(currentColumn, currentPlayer);
-                if (success)
+                Play();
+            }
+        }
+
+        private void Play()
+        {
+            bool success = board.dropCoin(currentColumn, currentPlayer);
+            if (success)
+            {
+                int winner = board.getWinner();
+                if (winner == 0) switchPlayer();
+                else
                 {
-                    int winner = board.getWinner();
-                    if (winner == 0) switchPlayer();
-                    else
-                    {
-                        is_draw = winner == -1;
-                        state = State.End;
-                    }
+                    is_draw = winner == -1;
+                    state = State.End;
                 }
             }
         }
@@ -172,7 +194,12 @@ namespace puissance4.DesktopClient
                 _spriteBatch.DrawString(font, options[i], optionPos, color, 0, textMiddlePoint, 1f, SpriteEffects.None, 0.5f);
             }
             _spriteBatch.End();
-            textSwitchingColor = textSwitchingColor == Color.Red ? Color.Yellow : Color.Red;
+            if (textSwitchingTimer > 10)
+            {
+                textSwitchingColor = textSwitchingColor == Color.Red ? Color.Yellow : Color.Red;
+                textSwitchingTimer = 0;
+            }
+            textSwitchingTimer++;
         }
 
         private void DrawGame()
@@ -191,7 +218,7 @@ namespace puissance4.DesktopClient
                     xpos = offsetX + x * 100;
                     ypos = offsetY + y * 100;
                     Vector2 pos = new Vector2(ypos, xpos);
-                    switch (board.getValue(x, y))
+                    switch (board.getValueAt(x, y))
                     {
                         case 0: // white
                             _spriteBatch.Draw(white.Texture, pos, Color.White);
