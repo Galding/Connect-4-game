@@ -7,7 +7,7 @@ namespace puissance4.DesktopClient
         {
             int best = -1;
             double best_ratio = 0;
-            int games_per_move = 1000;
+            int games_per_move = 100;
             for (int move = 0; move < 7; move++)
             {
                 if (board.getColumn(move)[0] != 0) continue; // full column
