@@ -21,9 +21,12 @@ namespace puissance4.DesktopClient
         private int currentPlayer = 1;
         private int currentColumn = VY / 2;
         private bool is_draw = false;
-        private bool isPlaying = true;
         private SpriteFont font;
         private Board board;
+
+        private State state = State.Menu;
+        private Gamemode gamemode = Gamemode.Player;
+        private Color textSwitchingColor = Color.Red;
 
         public Game1()
         {
@@ -31,13 +34,11 @@ namespace puissance4.DesktopClient
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             board = new Board();
-
         }
 
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -48,7 +49,7 @@ namespace puissance4.DesktopClient
             _graphics.PreferredBackBufferWidth = 1024;
             _graphics.PreferredBackBufferHeight = 720;
             _graphics.ApplyChanges();
-            // on charge un objet mur
+
             white = new Puissance4Object(Content.Load<Texture2D>("white"), new Vector2(0f,
            0f), new Vector2(100f, 100f));
             yellow = new Puissance4Object(Content.Load<Texture2D>("yellow"), new
@@ -62,8 +63,6 @@ namespace puissance4.DesktopClient
             Color[] color = new Color[_graphics.PreferredBackBufferWidth * _graphics.PreferredBackBufferHeight];
             for (int i = 0; i < color.Length; i++) color[i] = Color.Black;
             endBackGroudTexture.SetData(color);
-
-
         }
 
         private KeyboardState currentKeyState;
@@ -77,53 +76,113 @@ namespace puissance4.DesktopClient
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            this.currentKeyState = Keyboard.GetState();
-            if (isPlaying)
+            currentKeyState = Keyboard.GetState();
+            switch (state)
             {
-                if (IsKeyPressed(Keys.Right) && this.currentColumn < VX)
+                case State.Menu:
+                    UpdateMenu();
+                    break;
+                case State.Playing:
+                    UpdateGame();
+                    break;
+                case State.End:
+                    UpdateEndScreen();
+                    break;
+                default: break;
+            }
+            previousKeyState = currentKeyState;
+            base.Update(gameTime);
+        }
+
+        protected void UpdateMenu()
+        {
+            if (IsKeyPressed(Keys.Down) || IsKeyPressed(Keys.Up))
+                gamemode = gamemode == Gamemode.Player ? Gamemode.AI : Gamemode.Player;
+
+            if (IsKeyPressed(Keys.Enter))
+                state = State.Playing;
+        }
+
+        protected void UpdateGame()
+        {
+            if (IsKeyPressed(Keys.Right) && currentColumn < VX)
+                currentColumn++;
+
+            if (IsKeyPressed(Keys.Left) && currentColumn > 0)
+                currentColumn--;
+
+            if (IsKeyPressed(Keys.Down))
+            {
+                bool success = board.dropCoin(currentColumn, currentPlayer);
+                if (success)
                 {
-                    this.currentColumn++;
-                }
-                if (IsKeyPressed(Keys.Left) && this.currentColumn > 0)
-                {
-                    this.currentColumn--;
-                }
-                if (IsKeyPressed(Keys.Down))
-                {
-                    bool success = board.dropCoin(this.currentColumn, this.currentPlayer);
-                    if (success)
+                    int winner = board.getWinner();
+                    if (winner == 0) switchPlayer();
+                    else
                     {
-                        int winner = board.getWinner();
-                        if (winner == 0) this.switchPlayer();
-                        else
-                        {
-                            is_draw = winner == -1;
-                            isPlaying = false;
-                        }
+                        is_draw = winner == -1;
+                        state = State.End;
                     }
                 }
-                this.previousKeyState = this.currentKeyState;
             }
-            else
+        }
+
+        protected void UpdateEndScreen()
+        {
+            if (IsKeyPressed(Keys.R))
             {
-                if (IsKeyPressed(Keys.R))
-                {
-                    this.resetGame();
-                }
+                resetGame();
             }
-            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             GraphicsDevice.Clear(Color.Black);
+            switch (state)
+            {
+                case State.Menu:
+                    DrawMenu();
+                    break;
+                case State.Playing:
+                    DrawGame();
+                    break;
+                case State.End:
+                    DrawGame();
+                    DrawEndScreen();
+                    break;
+                default: break;
+            }
+            base.Draw(gameTime);
+        }
+
+        private void DrawMenu()
+        {
+            String title = "Connect 4 Game";
+            _spriteBatch.Begin();
+            Vector2 titlePos = new Vector2(Window.ClientBounds.Width / 2, 100);
+            Vector2 textMiddlePoint = font.MeasureString(title) / 2;
+            _spriteBatch.DrawString(font, title, titlePos, textSwitchingColor, 0, textMiddlePoint, 1.5f, SpriteEffects.None, 0.5f);
+            String[] options = new String[] { "Player vs Player", "Player vs AI" };
+            for (int i = 0; i < options.Length; i++)
+            {
+                Vector2 optionPos = new Vector2(Window.ClientBounds.Width / 2, 350 + i * 100);
+                textMiddlePoint = font.MeasureString(options[i]) / 2;
+                Color color = i == (int)gamemode ? textSwitchingColor : Color.White;
+                _spriteBatch.DrawString(font, options[i], optionPos, color, 0, textMiddlePoint, 1f, SpriteEffects.None, 0.5f);
+            }
+            _spriteBatch.End();
+            textSwitchingColor = textSwitchingColor == Color.Red ? Color.Yellow : Color.Red;
+        }
+
+        private void DrawGame()
+        {
             _spriteBatch.Begin();
 
             int offsetX = 100;
             int offsetY = 162;
-            Vector2 arrow_pos = new Vector2(offsetY + this.currentColumn * 100, offsetX - 100);
-            _spriteBatch.Draw(arrow.Texture, arrow_pos, this.currentPlayer == 1 ? Color.Yellow : Color.Red);
+            Vector2 arrow_pos = new Vector2(offsetY + currentColumn * 100, offsetX - 100);
+            _spriteBatch.Draw(arrow.Texture, arrow_pos, currentPlayer == 1 ? Color.Yellow : Color.Red);
             for (int x = 0; x < VX; x++)
             {
                 for (int y = 0; y < VY; y++)
@@ -147,15 +206,9 @@ namespace puissance4.DesktopClient
                             break;
                     }
                 }
-
             }
 
             _spriteBatch.End();
-            if (!isPlaying)
-            {
-                DrawEndScreen();
-            }
-            base.Draw(gameTime);
         }
 
         private void DrawEndScreen()
@@ -175,11 +228,11 @@ namespace puissance4.DesktopClient
 
         public void switchPlayer()
         {
-            this.currentPlayer = this.currentPlayer == 1 ? 2 : 1;
+            currentPlayer = currentPlayer == 1 ? 2 : 1;
         }
         public void resetGame()
         {
-            isPlaying = true;
+            state = State.Playing;
             for (int i = 0; i < Game1.VX; i++)
             {
                 for (int j = 0; j < Game1.VY; j++)

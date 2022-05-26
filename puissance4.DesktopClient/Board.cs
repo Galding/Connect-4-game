@@ -81,8 +81,6 @@ namespace puissance4.DesktopClient
             return 0;
         }
 
-
-
         public int getPlayerThatHasFourInArray(byte[] array)
         {
             for (int p = 1; p <= 2; p++)
