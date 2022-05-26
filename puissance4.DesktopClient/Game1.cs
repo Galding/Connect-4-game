@@ -15,28 +15,23 @@ namespace puissance4.DesktopClient
         private Puissance4Object yellow;
         private Puissance4Object arrow;
         private Texture2D endBackGroudTexture;
-        const int VX = 6;
-        const int VY = 7;
-        private byte[,] map;
+        public const int VX = 6;
+        public const int VY = 7;
+
         private int currentPlayer = 1;
         private int currentColumn = VY / 2;
         private bool is_draw = false;
         private bool isPlaying = true;
         private SpriteFont font;
+        private Board board;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            map = new byte[VX, VY]{ // 0 = empty (white), 1 = yellow, 2 = red
-             {0, 0, 0, 0, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 0},
-             {0, 0, 0, 0, 0, 0, 0}
-             };
+            board = new Board();
+
         }
 
         protected override void Initialize()
@@ -95,10 +90,10 @@ namespace puissance4.DesktopClient
                 }
                 if (IsKeyPressed(Keys.Down))
                 {
-                    bool success = this.dropCoin(this.currentColumn, this.currentPlayer);
+                    bool success = board.dropCoin(this.currentColumn, this.currentPlayer);
                     if (success)
                     {
-                        int winner = this.getWinner();
+                        int winner = board.getWinner();
                         if (winner == 0) this.switchPlayer();
                         else
                         {
@@ -113,7 +108,7 @@ namespace puissance4.DesktopClient
             {
                 if (IsKeyPressed(Keys.R))
                 {
-                    resetGame();
+                    this.resetGame();
                 }
             }
             base.Update(gameTime);
@@ -137,7 +132,7 @@ namespace puissance4.DesktopClient
                     xpos = offsetX + x * 100;
                     ypos = offsetY + y * 100;
                     Vector2 pos = new Vector2(ypos, xpos);
-                    switch (map[x, y])
+                    switch (board.getValue(x, y))
                     {
                         case 0: // white
                             _spriteBatch.Draw(white.Texture, pos, Color.White);
@@ -158,165 +153,43 @@ namespace puissance4.DesktopClient
             _spriteBatch.End();
             if (!isPlaying)
             {
-                _spriteBatch.Begin();
-                _spriteBatch.Draw(endBackGroudTexture, new Vector2(0, 0), Color.White * 0.5f);
-                var winText = is_draw ? "Draw game!" : "You WIN!";
-                Vector2 textMiddlePoint = font.MeasureString(winText) / 2;
-                Vector2 winTextPosition = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
-                Color textColor = Color.White;
-                if (!is_draw) textColor = currentPlayer == 1 ? Color.Yellow : Color.Red;
-                _spriteBatch.DrawString(font, winText, winTextPosition, textColor, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
-                Vector2 restartPos = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height - 75);
-                _spriteBatch.DrawString(font, "Press R to restart", restartPos, Color.White);
-                _spriteBatch.End();
+                DrawEndScreen();
             }
             base.Draw(gameTime);
         }
 
-        protected void switchPlayer()
+        private void DrawEndScreen()
+        {
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(endBackGroudTexture, new Vector2(0, 0), Color.White * 0.5f);
+            var winText = is_draw ? "Draw game!" : "You WIN!";
+            Vector2 textMiddlePoint = font.MeasureString(winText) / 2;
+            Vector2 winTextPosition = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
+            Color textColor = Color.White;
+            if (!is_draw) textColor = currentPlayer == 1 ? Color.Yellow : Color.Red;
+            _spriteBatch.DrawString(font, winText, winTextPosition, textColor, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
+            Vector2 restartPos = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height - 75);
+            _spriteBatch.DrawString(font, "Press R to restart", restartPos, Color.White);
+            _spriteBatch.End();
+        }
+
+        public void switchPlayer()
         {
             this.currentPlayer = this.currentPlayer == 1 ? 2 : 1;
         }
-
-        protected bool dropCoin(int column, int player)
-        {
-            if (this.map[0, column] != 0) // if column already full
-                return false;
-
-            int x = VX - 1;
-            while (this.map[x, column] != 0) // found first empty from the bottom
-                x--;
-
-            this.map[x, column] = Convert.ToByte(player);
-            return true;
-        }
-
-        protected int getWinner()
-        {
-            var winner = 0;
-            for (int i = 0; i < VX; i++)
-            {
-                winner = getPlayerThatHasFourInArray(getColumn(i));
-                if (winner != 0) return winner;
-            }
-            for (int i = 0; i < VY; i++)
-            {
-                winner = getPlayerThatHasFourInArray(getRow(i));
-                if (winner != 0) return winner;
-            }
-
-            byte[][] diagonals = getDiagonals();
-            foreach (var diagonal in diagonals)
-            {
-                winner = getPlayerThatHasFourInArray(diagonal);
-                if (winner != 0) return winner;
-            }
-
-            if (isMapFull()) return -1;
-
-            return 0;
-        }
-
-        private bool isMapFull()
-        {
-            for (int y = 0; y < VY; y++)
-            {
-                for (int x = 0; x < VX; x++)
-                {
-                    if (map[x, y] == 0) return false;
-                }
-            }
-            return true;
-        }
-
-        protected int getPlayerThatHasFourInArray(byte[] array)
-        {
-            for (int p = 1; p <= 2; p++)
-            {
-                byte connected = 0;
-                var previous = 0;
-                foreach (byte current in array)
-                {
-                    if (current != p)
-                    {
-                        connected = 0;
-                        continue;
-                    }
-                    if (current != previous)
-                    {
-                        connected = 1;
-                        previous = current;
-                        continue;
-                    }
-                    connected++;
-                    if (connected == 4)
-                    {
-                        return p;
-                    }
-                }
-            }
-            return 0;
-        }
-
-        protected byte[] getColumn(int row)
-        {
-            var result = new byte[VY - 1];
-            for (int i = 0; i < VY; i++)
-            {
-                result = result.Append(map[row, i]).ToArray();
-            }
-            return result;
-        }
-
-        protected byte[] getRow(int column)
-        {
-            var result = new byte[VX - 1];
-            for (int i = 0; i < VX; i++)
-            {
-                result = result.Append(map[i, column]).ToArray();
-            }
-            return result;
-        }
-
-        protected byte[][] getDiagonals()
-        {
-            byte[][] diagonals = new byte[][] { };
-            int x;
-            for (int way = 0; way < 2; way++)
-            {
-                for (int offset = -VX + 1; offset < VX; offset++)
-                {
-                    byte[] diagonal = new byte[] { };
-                    for (int y = 0; y < VY; y++)
-                    {
-                        x = way == 1 ? y + offset : VX - 1 - y + offset;
-                        if (x < 0 || x > VX - 1 || y < 0 || y > VY) continue;
-                        Array.Resize(ref diagonal, diagonal.Length + 1);
-                        diagonal[diagonal.Length - 1] = map[x, y];
-                    }
-                    if (diagonal.Length >= 4)
-                    {
-                        Array.Resize(ref diagonals, diagonals.Length + 1);
-                        diagonals[diagonals.Length - 1] = diagonal;
-                    }
-                }
-            }
-            return diagonals;
-        }
-
-        protected void resetGame()
+        public void resetGame()
         {
             isPlaying = true;
-            for (int i = 0; i < VX; i++)
+            for (int i = 0; i < Game1.VX; i++)
             {
-                for (int j = 0; j < VY; j++)
+                for (int j = 0; j < Game1.VY; j++)
                 {
-                    map[i, j] = 0;
+                    board.setValueAt(i, j, 0);
                 }
             }
             switchPlayer();
             is_draw = false;
-            currentColumn = VY / 2;
+            currentColumn = Game1.VY / 2;
         }
     }
 }

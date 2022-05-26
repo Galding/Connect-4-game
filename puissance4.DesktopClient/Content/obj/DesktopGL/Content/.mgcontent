@@ -4,11 +4,11 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/Epulapp/Source/Repos/Connect-4-game/puissance4.DesktopClient/Content/arrow.png</File>
-    <File>C:/Users/Epulapp/Source/Repos/Connect-4-game/puissance4.DesktopClient/Content/ImpactFont.spritefont</File>
-    <File>C:/Users/Epulapp/Source/Repos/Connect-4-game/puissance4.DesktopClient/Content/red.png</File>
-    <File>C:/Users/Epulapp/Source/Repos/Connect-4-game/puissance4.DesktopClient/Content/white.png</File>
-    <File>C:/Users/Epulapp/Source/Repos/Connect-4-game/puissance4.DesktopClient/Content/yellow.png</File>
+    <File>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/arrow.png</File>
+    <File>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/ImpactFont.spritefont</File>
+    <File>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/red.png</File>
+    <File>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/white.png</File>
+    <File>C:/Users/Epulapp/source/repos/puissance4/puissance4.DesktopClient/Content/yellow.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
