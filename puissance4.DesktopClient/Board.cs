@@ -37,7 +37,15 @@ namespace puissance4.DesktopClient
 
         public Board copy()
         {
-            return new Board(map);
+            byte[,] newMap = new byte[Game1.VX, Game1.VY];
+            for (int y = 0; y < Game1.VY; y++)
+            {
+                for(int x = 0; x < Game1.VX; x++)
+                {
+                    newMap[x, y] = map[x, y];
+                }
+            }
+            return new Board(newMap);
         }
 
         public bool isMapFull()
@@ -68,12 +76,12 @@ namespace puissance4.DesktopClient
         public int getWinner()
         {
             var winner = 0;
-            for (int i = 0; i < Game1.VX; i++)
+            for (int i = 0; i < Game1.VY; i++)
             {
                 winner = getPlayerThatHasFourInArray(getColumn(i));
                 if (winner != 0) return winner;
             }
-            for (int i = 0; i < Game1.VY; i++)
+            for (int i = 0; i < Game1.VX; i++)
             {
                 winner = getPlayerThatHasFourInArray(getRow(i));
                 if (winner != 0) return winner;
@@ -120,7 +128,7 @@ namespace puissance4.DesktopClient
             return 0;
         }
 
-        public byte[] getColumn(int row)
+        public byte[] getRow(int row)
         {
             var result = new byte[Game1.VY - 1];
             for (int i = 0; i < Game1.VY; i++)
@@ -130,7 +138,7 @@ namespace puissance4.DesktopClient
             return result;
         }
 
-        public byte[] getRow(int column)
+        public byte[] getColumn(int column)
         {
             var result = new byte[Game1.VX - 1];
             for (int i = 0; i < Game1.VX; i++)

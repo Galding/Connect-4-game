@@ -112,8 +112,8 @@ namespace puissance4.DesktopClient
         {
             if (gamemode == Gamemode.AI && currentPlayer == 2)
             {
-                currentColumn = ai.Play();
-                Play();
+                int column = ai.Play(board, currentPlayer);
+                Play(column);
             }
 
             if (IsKeyPressed(Keys.Escape))
@@ -130,13 +130,13 @@ namespace puissance4.DesktopClient
 
             if (IsKeyPressed(Keys.Down))
             {
-                Play();
+                Play(currentColumn);
             }
         }
 
-        private void Play()
+        private void Play(int column)
         {
-            bool success = board.dropCoin(currentColumn, currentPlayer);
+            bool success = board.dropCoin(column, currentPlayer);
             if (success)
             {
                 int winner = board.getWinner();
@@ -242,7 +242,15 @@ namespace puissance4.DesktopClient
         {
             _spriteBatch.Begin();
             _spriteBatch.Draw(endBackGroudTexture, new Vector2(0, 0), Color.White * 0.5f);
-            var winText = is_draw ? "Draw game!" : "You WIN!";
+            var winText = "";
+            if (gamemode == Gamemode.AI && currentPlayer == 2)
+            {
+                winText = "You LOSE!";
+            }
+            else
+            {
+                winText = is_draw ? "Draw game!" : "You WIN!";
+            }
             Vector2 textMiddlePoint = font.MeasureString(winText) / 2;
             Vector2 winTextPosition = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
             Color textColor = Color.White;
